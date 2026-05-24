@@ -1,0 +1,51 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor",
+  "elements": [
+    {
+      "id": "TGYMYj8klw4PErw5vZsic",
+      "type": "text",
+      "x": 280,
+      "y": 164,
+      "width": 1331,
+      "height": 225,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a0",
+      "roundness": null,
+      "seed": 348347525,
+      "version": 739,
+      "versionNonce": 1756195653,
+      "isDeleted": false,
+      "boundElements": [],
+      "updated": 1779207824326,
+      "link": null,
+      "locked": false,
+      "text": "- signals - write/read (get with (), set(x), update(x => x ))\n- computed - read only - \"watches\" any signals inside the computed, and returns a new value if those signals change \n- effect - \"side effect\" - do this work when the signals \"captured\" in that effect change.\n    - can only be used in an \"injection context\" - that is usually a constructor in a component (or class), but there are\n      others - as you'll see.\n    - pretty much makes OnInit unneeded - this is the replacement for it (hint, effect can run in any injection context)\n- takes an optional argument that is a function that will be called when the effect is destroyed.\n- linkedSignal - computed and a signal got married. \n",
+      "fontSize": 20,
+      "fontFamily": 8,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "- signals - write/read (get with (), set(x), update(x => x ))\n- computed - read only - \"watches\" any signals inside the computed, and returns a new value if those signals change \n- effect - \"side effect\" - do this work when the signals \"captured\" in that effect change.\n    - can only be used in an \"injection context\" - that is usually a constructor in a component (or class), but there are\n      others - as you'll see.\n    - pretty much makes OnInit unneeded - this is the replacement for it (hint, effect can run in any injection context)\n- takes an optional argument that is a function that will be called when the effect is destroyed.\n- linkedSignal - computed and a signal got married. \n",
+      "autoResize": true,
+      "lineHeight": 1.25
+    }
+  ],
+  "appState": {
+    "gridSize": 20,
+    "gridStep": 5,
+    "gridModeEnabled": false,
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {}
+}

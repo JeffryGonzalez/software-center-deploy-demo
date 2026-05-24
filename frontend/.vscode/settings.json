@@ -1,0 +1,27 @@
+{
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "yaml.schemas": {
+    "./node_modules/@hypertheory-labs/msw-lens/schema/manifest.schema.json": "**/mocks/**/*.yaml"
+  },
+
+  "files.autoSave": "onFocusChange",
+  "js/ts.inlayHints.parameterNames.enabled": "literals",
+  "js/ts.inlayHints.variableTypes.enabled": true,
+  "js/ts.inlayHints.propertyDeclarationTypes.enabled": true,
+  "js/ts.inlayHints.parameterTypes.enabled": true,
+  "js/ts.inlayHints.functionLikeReturnTypes.enabled": true,
+  "js/ts.inlayHints.enumMemberValues.enabled": true,
+  "editor.inlayHints.enabled": "offUnlessPressed",
+  "eslint.codeActionsOnSave.mode": "all",
+  "editor.formatOnSave": true,
+  "workbench.tree.indent": 29,
+  "explorer.compactFolders": false,
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.format": "always"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}

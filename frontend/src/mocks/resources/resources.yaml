@@ -1,0 +1,35 @@
+endpoint: /api/resources
+method: GET
+shape: collection
+description: Returns the list of developer resources displayed on the Overview page
+
+responseType:
+  name: Resource
+  path: src/app/areas/resources/data/resources.ts
+
+context:
+  sourceHints:
+    - src/app/areas/resources/data/resources.ts
+    - src/app/areas/resources/ui/list.ts
+    - src/app/areas/resources/feature-home/pages/overview.ts
+  hints:
+    - 'The List component has no @empty block — an empty array renders a bare <ul> with no user-visible message'
+    - "tags.join(', ') is called directly in the template — a resource with an empty tags array renders 'Tags: ' with no value"
+
+scenarios:
+  typical:
+    description: Shows several developer resources with titles, descriptions, URLs, and tags — the normal production-like view
+    active: true
+  empty:
+    description: Tests the zero-items state — currently renders a bare <ul> with no empty-state message; useful for verifying whether one should be added
+  overloaded:
+    description: Tests rendering with 60 resources to expose layout overflow, scroll behaviour, or the absence of pagination
+  slow:
+    description: Tests the loading/skeleton state while the request is in flight; verifies no flash of empty content
+    delay: '1000'
+  unauthorized:
+    description: Tests 401 response — verifies session-expiry handling (redirect to login or inline error) from the store or a route guard
+    httpStatus: 401
+  server-error:
+    description: Tests 500 response — verifies error boundary, fallback UI, or user-visible error message when the API is down
+    httpStatus: 500

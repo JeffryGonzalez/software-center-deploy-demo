@@ -1,0 +1,37 @@
+endpoint: /api/vendors/:vendorId/items
+method: GET
+shape: collection
+description: Returns catalog items for a specific vendor displayed on the Items admin page
+
+responseType:
+  name: VendorCatalogItem
+  path: src/app/areas/catalog/data-catalog/catalog-api.ts
+
+context:
+  sourceHints:
+    - src/app/areas/catalog/data-catalog/vendor-catalog-item-store.ts
+    - src/app/areas/catalog/data-catalog/catalog-api.ts
+    - src/app/areas/catalog/feature-admin/pages/items.ts
+  hints:
+    - 'ItemsPage receives an `id` input from the route but never calls store.getForVendor(id) — the store will always display an empty entity list regardless of the active vendor'
+    - 'The store uses switchMap — a second call to getForVendor() cancels the first; there is no loading state or error handling in the store or template'
+    - 'addCatalogItemToVendor() in CatalogApi has a URL bug: `/api/vendors/${vendorId}items` is missing a slash — POST requests will never reach /api/vendors/:vendorId/items'
+    - 'The template renders raw JSON via JsonPipe in a <pre> block — there is no loading indicator, empty-state message, or error UI'
+
+scenarios:
+  typical:
+    description: Shows catalog items for the requested vendor — the normal production-like view with titles and version numbers rendered as raw JSON
+    active: true
+  empty:
+    description: Tests a vendor with no catalog items — the <pre> renders an empty array with no user-visible empty-state message; verifies whether a placeholder should be added
+  overloaded:
+    description: Tests a vendor with 30 catalog items — verifies the <pre> block does not overflow the viewport and that large payloads are still readable
+  slow:
+    description: Tests the loading state — the <pre> stays empty during the delay because there is no loading indicator; verifies whether a spinner or skeleton should be added
+    delay: '2000'
+  unknown-vendor:
+    description: Tests a 404 for a vendor ID that does not exist — verifies whether the page renders an error message or silently shows an empty list
+    httpStatus: 404
+  server-error:
+    description: Tests a 500 response — rxMethod has no error handling so the observable completes silently and the <pre> stays empty; verifies whether an error boundary or retry option should be added
+    httpStatus: 500

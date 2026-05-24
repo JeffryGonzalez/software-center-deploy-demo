@@ -1,0 +1,27 @@
+endpoint: /api/vendors/:vendorId/items
+method: POST
+description: Adds a new catalog item to a specific vendor and returns the saved entity with a server-assigned id
+
+responseType:
+  name: VendorCatalogItem
+  path: src/app/areas/catalog/data-catalog/catalog-api.ts
+
+context:
+  sourceHints:
+    - src/app/areas/catalog/data-catalog/vendor-catalog-item-store.ts
+    - src/app/areas/catalog/data-catalog/catalog-api.ts
+  hints:
+    - 'addCatalogItemToVendor() has a URL bug: the path is `/api/vendors/${vendorId}items` (missing slash) — this handler uses the corrected URL /api/vendors/:vendorId/items; the bug must be fixed in catalog-api.ts before this handler can intercept POST requests'
+    - 'The store calls addEntity with the response body — the response MUST include an id or the new entity will be missing from the store'
+    - 'The store addVendor() method has no .catch() — a non-ok response or network error throws an unhandled rejection with no UI feedback'
+
+scenarios:
+  success:
+    description: Echoes the posted payload back with a fresh UUID — tests that the new item appears in the entity list and any UI that reads from the store updates correctly
+    active: true
+  slow:
+    description: Tests the period while the POST is in flight — verifies whether the submit trigger disables or shows a pending state during submission
+    delay: '1000'
+  server-error:
+    description: Tests a 500 response — the store's addVendor() throws an unhandled rejection; verifies whether an error message surfaces or the request is silently dropped
+    httpStatus: 500

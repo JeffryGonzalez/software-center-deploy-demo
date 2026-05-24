@@ -1,0 +1,30 @@
+endpoint: /api/books
+method: GET
+shape: collection
+description: Returns the list of classic books used by the Books lab
+
+responseType:
+  name: BookEntity
+  path: src/app/areas/books/data/types.ts
+
+context:
+  sourceHints:
+    - src/app/areas/books/data/books.ts
+    - src/app/areas/books/feature-home/pages/list.ts
+    - src/app/areas/books/feature-home/pages/stats.ts
+  hints:
+    - "The list is generated from a fixed corpus seeded by the handler; ids 1-100 are stable across requests"
+    - "Books have year, pages, author, country, language, link, imageLink — the stats page exercises every numeric field"
+
+scenarios:
+  typical:
+    description: Shows ~100 classic books — the production-like view that exercises sorting, stats, and pagination
+    active: true
+  empty:
+    description: Tests the zero-items state — verifies the list page renders an empty-state message instead of a bare table
+  slow:
+    description: Tests the loading/skeleton state while the request is in flight
+    delay: '1000'
+  server-error:
+    description: Tests 500 response — verifies error boundary or fallback UI
+    httpStatus: 500

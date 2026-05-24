@@ -1,0 +1,28 @@
+endpoint: /api/vendors
+method: POST
+description: Creates a new vendor from the Add Vendor form and returns the saved entity with a server-assigned id
+
+responseType:
+  name: VendorEntity
+  path: src/app/areas/catalog/data-catalog/types.ts
+
+context:
+  sourceHints:
+    - src/app/areas/catalog/data-catalog/vendors-store.ts
+    - src/app/areas/catalog/ui-vendors/vendor-add.ts
+  hints:
+    - 'The store calls addEntity with the response body — the response MUST include an id or the entity will be missing from the store'
+    - 'The store add() method has no .catch() — a non-ok response or network error throws an unhandled promise rejection with no UI feedback'
+    - 'The submit button uses aria-disabled, not disabled — it can still be clicked when the form is invalid'
+    - 'On success the form resets via vendorForm().reset() and model.set(...) — verify the form clears and the new card appears in the grid'
+
+scenarios:
+  success:
+    description: Echoes the posted payload back with a fresh UUID — tests that the new vendor card appears in the grid and the form resets
+    active: true
+  slow:
+    description: Tests the period while the POST is in flight — verifies whether the submit button shows a pending or disabled state during submission
+    delay: '1000'
+  server-error:
+    description: Tests 500 response — the store's add() throws an unhandled rejection; verifies whether an error message surfaces or the form retains its input
+    httpStatus: 500

@@ -1,0 +1,38 @@
+endpoint: https://news.hypertheory.com/angular
+method: GET
+shape: collection
+description: Returns recent Angular news items displayed on the News page
+
+responseType:
+  name: NewsItem
+  path: src/app/areas/home/feature-home/data/types.ts
+
+context:
+  sourceHints:
+    - src/app/areas/home/feature-home/pages/news.ts
+    - src/app/areas/home/feature-home/ui/news-list.ts
+    - src/app/areas/home/feature-home/data/types.ts
+  hints:
+    - 'The template only renders <app-home-news-list> when newsResource.hasValue() — loading and error states both show a blank content area with no loading indicator and no error UI'
+    - 'NewsList has no @empty block — an empty array renders the outer <div> with no children and no empty-state message'
+    - 'item.published is piped through DatePipe — invalid or empty date strings silently produce an empty cell rather than throwing'
+
+scenarios:
+  typical:
+    description: Shows several recent Angular news items — the normal production-like view with titles, bodies, and formatted dates
+    active: true
+  empty:
+    description: Tests the zero-items state — the list renders with no items and no empty-state message; verifies whether a "no news" placeholder should be added
+  slow:
+    description: Tests the loading state — the content area is blank while the request is in flight (no skeleton or spinner); verifies that only the page header is visible during load
+    delay: '3000'
+  never-resolves:
+    description: Tests the permanent-loading state — content stays blank indefinitely; verifies whether a timeout message or fallback UI should be added
+    delay: infinite
+  server-error:
+    description: Tests 500 response — content area silently stays blank with no error message surfaced to the user; verifies whether an error boundary or fallback UI should be added
+    httpStatus: 500
+  stale-dates:
+    description: Tests items with invalid, empty, and extreme published dates — verifies that DatePipe edge cases do not break rendering and that blank or unexpected date output is acceptable
+  many-items:
+    description: Tests rendering with 50 news items — verifies that the list handles a large number of items without layout issues, performance degradation, or truncation

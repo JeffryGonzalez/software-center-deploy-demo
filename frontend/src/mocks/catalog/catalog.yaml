@@ -1,0 +1,34 @@
+endpoint: /api/catalog
+method: GET
+shape: collection
+description: Returns the list of approved software items displayed on the Catalog overview page
+
+responseType:
+  name: CatalogListItem
+  path: src/app/areas/catalog/data-catalog/types.ts
+
+context:
+  sourceHints:
+    - src/app/areas/catalog/data-catalog/types.ts
+    - src/app/areas/catalog/feature-catalog/pages/overview.ts
+  hints:
+    - 'The @for block has an @empty fallback — an empty array renders "No currently supported software" instead of a bare table'
+    - 'The error block renders an alert-error banner — any non-2xx response triggers it via httpResource.error()'
+
+scenarios:
+  typical:
+    description: Shows several approved software items — the normal production-like view with titles and vendors
+    active: true
+  empty:
+    description: Tests the @empty fallback row — verifies "No currently supported software" renders instead of a blank table body
+  overloaded:
+    description: Tests rendering with many catalog items — verifies the table handles long lists without overflow or layout issues
+  slow:
+    description: Tests the loading-spinner state while the request is in flight — verifies all spinners are visible and no flash of empty content
+    delay: '1000'
+  server-error:
+    description: Tests 500 response — verifies the alert-error banner renders with "Bummer - can't load the catalog right now."
+    httpStatus: 500
+  malformed-data:
+    description: Return a few catalog items that don't have titles or vendors
+    httpStatus: 200

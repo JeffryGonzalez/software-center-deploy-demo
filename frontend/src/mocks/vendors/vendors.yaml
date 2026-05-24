@@ -1,0 +1,33 @@
+endpoint: /api/vendors
+method: GET
+shape: collection
+description: Returns the list of vendors loaded into the signal store on the Vendors admin page
+
+responseType:
+  name: VendorEntity
+  path: src/app/areas/catalog/data-catalog/types.ts
+
+context:
+  sourceHints:
+    - src/app/areas/catalog/data-catalog/vendors-store.ts
+    - src/app/areas/catalog/feature-admin/pages/vendors.ts
+    - src/app/areas/catalog/ui-vendors/vendor-list.ts
+  hints:
+    - 'The store _load() uses bare fetch with no .catch() — a 500 or network error throws an unhandled promise rejection with no UI feedback'
+    - 'VendorList has no @empty block — an empty array renders a blank 4-column grid with no empty-state message'
+    - 'The store is provided at root via signalStore defaults — _load() fires once on onInit and is not retried'
+
+scenarios:
+  typical:
+    description: Shows several vendors in the card grid — the normal production-like view with name, url, and point-of-contact details
+    active: true
+  empty:
+    description: Tests the zero-vendors state — the grid renders blank with no empty-state message; verifies whether a placeholder should be added
+  overloaded:
+    description: Tests the 4-column grid with many vendors — verifies layout holds and cards don't overflow or collapse
+  slow:
+    description: Tests the period before _load() resolves — the grid is blank with no loading indicator; verifies whether a skeleton or spinner should be added
+    delay: '2000'
+  server-error:
+    description: Tests 500 response — fetch throws an unhandled rejection with no UI feedback; verifies whether error handling should be added to the store
+    httpStatus: 500
