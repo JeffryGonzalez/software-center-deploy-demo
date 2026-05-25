@@ -1,18 +1,21 @@
 import { Component } from '@angular/core';
-import { PageHeader } from '../../../shared/ui-page-header/page-header';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home-overview',
-  imports: [PageHeader],
+  imports: [RouterLink],
   template: `
-    <app-page-header title="Overview" description="This Course"> </app-page-header>
-    <div class="prose max-w-none">
-      <p>
-        This course is designed to help developers that have learned their way around Angular to
-        deepen their understanding and build more complex applications.
+    <div class="max-w-2xl">
+      <h2 class="text-3xl font-bold mb-2">Software Center</h2>
+      <p class="text-base-content/70 mb-8">
+        Manage your organization's software catalog — track vendors, versions, and approved
+        software.
       </p>
+      <div class="flex gap-4">
+        <a routerLink="/catalog" class="btn btn-primary">View Catalog</a>
+        <a routerLink="/admin" class="btn btn-outline">Admin</a>
+      </div>
     </div>
   `,
-  styles: ``,
 })
 export class OverviewPage {}

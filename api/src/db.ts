@@ -1,10 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { fileURLToPath } from "node:url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dirname, "..", "catalog.db");
+const DB_PATH = process.env.DB_PATH ?? "/data/catalog.db";
 
 export const db = new DatabaseSync(DB_PATH);
 

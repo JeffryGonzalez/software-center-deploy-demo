@@ -1,0 +1,5 @@
+node_modules
+dist
+catalog.db
+catalog.db-shm
+catalog.db-wal

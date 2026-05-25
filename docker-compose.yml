@@ -1,0 +1,22 @@
+services:
+  api:
+    build: ./api
+    ports:
+      - "3000:3000"
+    volumes:
+      - catalog-data:/data
+    environment:
+      PORT: "3000"
+      DB_PATH: /data/catalog.db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    environment:
+      API_URL: http://api:3000
+    depends_on:
+      - api
+
+volumes:
+  catalog-data:

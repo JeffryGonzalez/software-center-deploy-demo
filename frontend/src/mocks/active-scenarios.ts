@@ -4,9 +4,6 @@
  * Keys are "METHOD endpoint", values are scenario names defined in the handler.
  */
 const activeScenarios: Record<string, string> = {
-  'GET /api/resources': 'slow',
-  'POST /api/resources': 'slow',
-  'GET https://news.hypertheory.com/angular': 'many-items',
   'GET /api/catalog': 'typical',
   'GET /api/vendors': 'typical',
   'POST /api/vendors': 'success',

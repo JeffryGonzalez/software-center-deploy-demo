@@ -40,7 +40,7 @@ function toVendorEntity(row: VendorRow) {
 vendorsRouter.get("/", (_req, res) => {
   const rows = db
     .prepare("SELECT * FROM vendors ORDER BY name")
-    .all() as VendorRow[];
+    .all() as unknown as VendorRow[];
   res.json(rows.map(toVendorEntity));
 });
 
@@ -99,7 +99,7 @@ vendorsRouter.get("/:vendorId/items", (req, res) => {
     .prepare(
       "SELECT id, title, version FROM vendor_items WHERE vendor_id = ? ORDER BY title",
     )
-    .all(vendorId) as ItemRow[];
+    .all(vendorId) as unknown as ItemRow[];
 
   res.json(items);
 });
