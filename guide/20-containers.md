@@ -276,3 +276,7 @@ Docker Compose is the right tool for local development and testing. It's not wha
 In production — and for the Kubernetes section of this workshop — you push these images to a registry (Docker Hub) and reference them in Kubernetes manifests. Kubernetes takes over the job Compose does locally: starting containers, injecting environment variables, mounting volumes, and networking services together. The difference is that Kubernetes does this across a cluster of machines, with health checks, automatic restarts, rolling updates, and resource management built in.
 
 Image publishing is covered in [CI/CD](./60-ci-cd.md). The Kubernetes manifests that consume those images are in [Orchestration with Kubernetes](./50-k8s.md).
+
+---
+
+> **Footnote — building for a specific CPU architecture.** Docker images are architecture-specific. An image built on an Apple Silicon Mac (`arm64`) won't run on a Windows/Linux `amd64` host without emulation, and vice versa. If you're on a Mac and pushing images that will run on an `amd64` cluster (or on the Windows box we'll use during the demo), build explicitly for the target platform: `docker build --platform=linux/amd64 -t myimage .`, or use `docker buildx build --platform=linux/amd64,linux/arm64 --push -t myimage .` to publish a multi-arch manifest. Symptom when you forget: the image pulls fine but the container exits immediately with `exec format error`.
