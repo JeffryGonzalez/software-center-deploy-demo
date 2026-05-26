@@ -1,0 +1,48 @@
+---
+# Keycloak — public OIDC endpoints must be reachable by the browser
+# Runs at /auth (KC_HTTP_RELATIVE_PATH=/auth)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: keycloak
+  namespace: students
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - class.hypertheory-labs.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /auth
+      backendRefs:
+        - name: keycloak
+          port: 8080
+
+---
+# Students portal BFF — catch-all, lowest priority
+# Handles everything not matched by /guacamole or /auth above.
+# The BFF's YARP reverse proxy forwards non-/bff/* requests to the frontend nginx service.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: students-bff
+  namespace: students
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - class.hypertheory-labs.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bff
+          port: 80

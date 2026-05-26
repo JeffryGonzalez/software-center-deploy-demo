@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-bff
+  namespace: software-center
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-bff
+  template:
+    metadata:
+      labels:
+        app: catalog-bff
+    spec:
+      containers:
+        - name: catalog-bff
+          image: jeffrygonzalez/sc-bff:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-bff
+  namespace: software-center
+spec:
+  selector:
+    app: catalog-bff
+  ports:
+    - port: 80
+      targetPort: 8080

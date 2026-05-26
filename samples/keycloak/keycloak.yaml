@@ -1,0 +1,118 @@
+# Production Keycloak deployment
+# Before applying:
+#   1. Prod realm JSON is at HypertheoryLabs/AppHost/Realms/hypertheory-realm-prod.json
+#      IMPORTANT: replace "CHANGE-ME-BFF-SECRET" and "CHANGE-ME-ADMIN-API-SECRET" in that
+#      file with the same values you put in manifests/students/bff/secrets.yaml, then:
+#   2. Create the ConfigMap from the prod realm:
+#      kubectl apply -f manifests/students/namespace.yaml
+#      kubectl create configmap keycloak-realm \
+#        --from-file=hypertheory-realm.json=HypertheoryLabs/AppHost/Realms/hypertheory-realm-prod.json \
+#        -n students
+#   3. Fill in manifests/students/keycloak/secrets.yaml
+#   4. Jeff's account has no password in the prod realm — set it via Keycloak admin console
+#      after first deploy (Admin → Users → jeff → Credentials → Set Password)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: students
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.1   # TODO: match version used in dev AppHost
+          args:
+            - start
+            - --import-realm
+          ports:
+            - containerPort: 8080
+          env:
+            # Database
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: KC_DB_URL
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: KC_DB_USERNAME
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: KC_DB_PASSWORD
+
+            # Hostname — Keycloak uses this to build its public URLs (token issuers, redirect URIs)
+            - name: KC_HOSTNAME
+              value: https://class.hypertheory-labs.com/auth
+            # Serve at /auth so it doesn't conflict with the BFF catch-all
+            - name: KC_HTTP_RELATIVE_PATH
+              value: /auth
+            # Behind Traefik which terminates TLS — tell Keycloak to trust forwarded headers
+            - name: KC_PROXY_HEADERS
+              value: xforwarded
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+
+            # Admin account
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: KEYCLOAK_ADMIN
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: KEYCLOAK_ADMIN_PASSWORD
+
+          volumeMounts:
+            - name: realm-config
+              mountPath: /opt/keycloak/data/import
+              readOnly: true
+
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+      volumes:
+        - name: realm-config
+          configMap:
+            name: keycloak-realm   # created from prod realm JSON (see instructions above)
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: students
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - port: 8080
+      targetPort: 8080

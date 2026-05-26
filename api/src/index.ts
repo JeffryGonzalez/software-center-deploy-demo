@@ -12,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api/vendors", vendorsRouter);
 app.use("/api/catalog", catalogRouter);
 

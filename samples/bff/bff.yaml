@@ -1,0 +1,138 @@
+# Students Portal BFF (.NET + YARP)
+# Build: ./scripts/build-and-push.sh --bff-only
+# See decisions/tdr-006-container-builds-and-versioning.md
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff
+  namespace: students
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bff
+  template:
+    metadata:
+      labels:
+        app: bff
+    spec:
+      # Apply Marten + Wolverine schema migrations before the app starts.
+      # See decisions/tdr-007-marten-migrations-and-optimized-codegen.md
+      # Uses the same image as the main container so tag rollouts stay in sync
+      # (build-and-push.sh sed updates every `image: …/ht-bff:` line).
+      initContainers:
+        - name: migrate
+          image: jeffrygonzalez/ht-bff:2026-04-23-4
+          imagePullPolicy: Always
+          command: ["dotnet", "Hypertheory.Api.dll", "db-apply"]
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ConnectionStrings__bff
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: ConnectionStrings__appdb
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      containers:
+        - name: bff
+          image: jeffrygonzalez/ht-bff:2026-04-23-4
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            # Keycloak — internal service URL (avoids hairpin routing through the LB)
+            # The BFF connects to Keycloak directly inside the cluster.
+            - name: KEYCLOAK_HTTP
+              value: http://keycloak.students.svc.cluster.local:8080/auth
+
+            # OIDC token issuer — tokens from Keycloak carry the PUBLIC URL as issuer.
+            # ASP.NET Core validates this, so we must tell it what to expect.
+            # TODO: this may require a small change in ApiExtensions.cs to read from config:
+            #   options.TokenValidationParameters.ValidIssuers = [issuerFromConfig]
+            - name: Oidc__ValidIssuer
+              value: https://class.hypertheory-labs.com/auth/realms/hypertheory
+
+            # YARP — tell the reverse proxy where the Astro frontend lives
+            - name: ReverseProxy__Clusters__astroFrontend__Destinations__astroDestination1__Address
+              value: http://frontend.students.svc.cluster.local
+
+            # OIDC client config — must match ASP.NET config path: Authentication:Schemes:OpenIdConnect:*
+            - name: Authentication__Schemes__OpenIdConnect__ClientId
+              value: bff
+            - name: Authentication__Schemes__OpenIdConnect__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: OIDC__ClientSecret
+            - name: ConnectionStrings__bff
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: ConnectionStrings__appdb
+            - name: Keycloak__ServiceAccount__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: Keycloak__ServiceAccount__ClientSecret
+            - name: Guacamole__BaseUrl
+              value: https://class.hypertheory-labs.com/guacamole
+            - name: Guacamole__AdminUsername
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: Guacamole__AdminUsername
+            - name: Guacamole__AdminPassword
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: Guacamole__AdminPassword
+            - name: Guacamole__VmUsername
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: Guacamole__VmUsername
+            - name: Guacamole__VmPassword
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: Guacamole__VmPassword
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1536Mi
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bff
+  namespace: students
+spec:
+  selector:
+    app: bff
+  ports:
+    - port: 80
+      targetPort: 8080
