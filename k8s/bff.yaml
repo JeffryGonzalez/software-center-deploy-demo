@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: catalog-bff
-          image: jeffrygonzalez/sc-bff:latest
+          image: jeffrygonzalez/software-demo-bff:v1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
