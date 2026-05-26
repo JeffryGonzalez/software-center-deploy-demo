@@ -4,11 +4,7 @@
  * Keys are "METHOD endpoint", values are scenario names defined in the handler.
  */
 const activeScenarios: Record<string, string> = {
-  'GET /api/catalog': 'typical',
-  'GET /api/vendors': 'typical',
-  'POST /api/vendors': 'success',
-  'GET /api/vendors/:vendorId/items': 'typical',
-  'POST /api/vendors/:vendorId/items': 'success',
+  'GET https://recipes.com/api/my-recipes': 'large',
 };
 
 export default activeScenarios;

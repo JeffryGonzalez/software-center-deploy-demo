@@ -17,6 +17,9 @@ import { vendorsStore } from '../data-catalog/vendors-store';
   imports: [FormField, FormRoot],
   template: `
     <form class="flex flex-col gap-4 max-w-lg p-8" [formRoot]="vendorForm">
+      @if (store.addError(); as error) {
+        <div class="alert alert-error">{{ error }}</div>
+      }
       <div class="flex flex-col w-full">
         <label for="name">Name</label>
         <input
@@ -77,11 +80,12 @@ import { vendorsStore } from '../data-catalog/vendors-store';
         </div>
       </fieldset>
       <button
-        [attr.aria-disabled]="vendorForm().invalid()"
+        [attr.aria-disabled]="vendorForm().invalid() || store.isAdding()"
+        [disabled]="vendorForm().invalid() || store.isAdding()"
         type="submit"
         class="btn btn-accent aria-disabled:cursor-not-allowed"
       >
-        Add Vendor
+        {{ store.isAdding() ? 'Adding Vendor...' : 'Add Vendor' }}
       </button>
     </form>
     <!-- @defer (when devMode()) {
@@ -136,7 +140,11 @@ export class VendorAdd {
         action: async (value) => {
           const payload = value().controlValue();
 
-          await this.store.add(payload);
+          const createdVendor = await this.store.add(payload);
+          if (!createdVendor) {
+            return;
+          }
+
           this.vendorForm().reset();
           this.model.set({
             name: '',

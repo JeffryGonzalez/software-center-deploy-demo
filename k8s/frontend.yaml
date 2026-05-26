@@ -15,17 +15,17 @@ spec:
     spec:
       containers:
         - name: catalog-frontend
-          image: jeffrygonzalez/sc-frontend:latest
+          image: jeffrygonzalez/software-angular-demo:v1.0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 80
           resources:
             requests:
-              cpu: 50m
-              memory: 64Mi
+              cpu: 500m
+              memory: 4Gb
             limits:
-              cpu: 200m
-              memory: 128Mi
+              cpu: 1000m
+              memory: 8Gb
           readinessProbe:
             httpGet:
               path: /

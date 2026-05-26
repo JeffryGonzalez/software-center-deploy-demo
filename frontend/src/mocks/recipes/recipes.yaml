@@ -1,0 +1,46 @@
+endpoint: https://recipes.com/api/my-recipes
+method: GET
+shape: collection
+description: Returns the recipe list rendered on the Home Recipes page via httpResource
+
+responseType:
+  name: Recipe
+  path: src/app/areas/home/feature-home/pages/recipes.ts
+
+context:
+  sourceHints:
+    - src/app/areas/home/feature-home/pages/recipes.ts
+  hints:
+    - 'RecipesPage renders recipeResource.value() directly in an @for block and has no explicit loading, error, or empty-state UI'
+    - 'Each recipe row is rendered with JsonPipe in a <pre> element, so large narratives and long step arrays can impact readability and vertical space'
+    - 'The @for track expression uses recipe id; duplicate ids can cause DOM reuse artifacts where one row appears to overwrite another'
+
+scenarios:
+  large:
+    description: A response with 300 recipes
+    httpStatus: 200
+  typical:
+    description: Shows the normal recipes list with one row per recipe so the page renders stable content after the request resolves
+    active: true
+  empty:
+    description: Tests the no-recipes state to verify whether the page should show an explicit empty-state message instead of a blank list
+  null-body:
+    description: Tests an unexpected null payload to verify whether the page fails safely or needs a guard before iterating
+    httpStatus: 200
+  malformed-data:
+    description: Tests partially invalid recipe records to verify whether rows render safely when fields are missing or null
+    httpStatus: 200
+  duplicate-ids:
+    description: Tests rendering stability when multiple recipes share an id to expose track-by collisions in the list
+  unauthorized:
+    description: Tests 401 responses to verify whether the page surfaces auth failure feedback or silently shows no results
+    httpStatus: 401
+  server-error:
+    description: Tests 500 responses to verify whether an error state appears or the page remains blank with no recovery path
+    httpStatus: 500
+  slow:
+    description: Tests delayed responses to verify whether a loading indicator is needed before recipes appear
+    delay: real
+  timeout:
+    description: Tests a request that never resolves to verify timeout handling and whether the UI gets stuck with no feedback
+    delay: infinite

@@ -12,7 +12,22 @@ import { authStore } from '../../../shared/util-auth/store';
   template: `
     <app-page-header title="Vendors" description="Vendor Management" />
     <div class="prose max-w-none">
+      @if (store.loadError(); as error) {
+        <div class="alert alert-error mb-4 flex items-center justify-between gap-3">
+          <span>{{ error }}</span>
+          <button class="btn btn-sm" type="button" (click)="store.reload()">Retry</button>
+        </div>
+      }
+
       <app-admin-vendor-add />
+
+      @if (store.isLoading()) {
+        <div class="mb-4 flex gap-2">
+          <span class="loading loading-spinner text-primary"></span>
+          <span class="loading loading-spinner text-secondary"></span>
+          <span class="loading loading-spinner text-accent"></span>
+        </div>
+      }
 
       <div class="flex flex-row gap-4 w-full">
         <div class="w-1/2">

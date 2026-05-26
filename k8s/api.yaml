@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: catalog-api
-          image: jeffrygonzalez/sc-api:latest
+          image: jeffrygonzalez/software-angular-demo:v1.0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

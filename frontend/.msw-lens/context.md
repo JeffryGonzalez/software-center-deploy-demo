@@ -1,5 +1,5 @@
 # msw-lens — project context
-generated: 2026-05-21T18:56:59.183Z
+generated: 2026-05-26T14:10:21.429Z
 
 > Drop this file into any LLM conversation for instant context about what
 > is mocked in this project, what scenarios exist, and what is currently active.
@@ -8,15 +8,12 @@ generated: 2026-05-21T18:56:59.183Z
 
 | endpoint | method | active scenario |
 |----------|--------|-----------------|
-| `/api/vendors` | GET | `typical` |
-| `/api/vendors` | POST | `success` |
-| `/api/vendors/:vendorId/items` | GET | `typical` |
-| `/api/vendors/:vendorId/items` | POST | `success` |
-| `/api/resources` | GET | `slow` |
-| `/api/resources` | POST | `slow` |
-| `https://news.hypertheory.com/angular` | GET | `many-items` |
-| `/api/catalog` | GET | `typical` |
-| `/api/books` | GET | `typical` |
+| `/api/vendors` | GET | `bypass` |
+| `/api/vendors` | POST | `bypass` |
+| `/api/vendors/:vendorId/items` | GET | `bypass` |
+| `/api/vendors/:vendorId/items` | POST | `bypass` |
+| `https://recipes.com/api/my-recipes` | GET | `large` |
+| `/api/catalog` | GET | `bypass` |
 
 ## Scenario details
 
@@ -24,7 +21,9 @@ generated: 2026-05-21T18:56:59.183Z
 manifest: `src\mocks\vendors\vendors.yaml`
 > Returns the list of vendors loaded into the signal store on the Vendors admin page
 
-- **typical** ✓ **(active)** — Shows several vendors in the card grid — the normal production-like view with name, url, and point-of-contact details
+**Currently bypassed** — requests pass through to the real API; no scenario is active.
+
+- **typical** — Shows several vendors in the card grid — the normal production-like view with name, url, and point-of-contact details
 - **empty** — Tests the zero-vendors state — the grid renders blank with no empty-state message; verifies whether a placeholder should be added
 - **overloaded** — Tests the 4-column grid with many vendors — verifies layout holds and cards don't overflow or collapse
 - **slow** *(delay: 2000)* — Tests the period before _load() resolves — the grid is blank with no loading indicator; verifies whether a skeleton or spinner should be added
@@ -39,7 +38,9 @@ sourceHints:
 manifest: `src\mocks\vendors\vendors-create.yaml`
 > Creates a new vendor from the Add Vendor form and returns the saved entity with a server-assigned id
 
-- **success** ✓ **(active)** — Echoes the posted payload back with a fresh UUID — tests that the new vendor card appears in the grid and the form resets
+**Currently bypassed** — requests pass through to the real API; no scenario is active.
+
+- **success** — Echoes the posted payload back with a fresh UUID — tests that the new vendor card appears in the grid and the form resets
 - **slow** *(delay: 1000)* — Tests the period while the POST is in flight — verifies whether the submit button shows a pending or disabled state during submission
 - **server-error** *(500)* — Tests 500 response — the store's add() throws an unhandled rejection; verifies whether an error message surfaces or the form retains its input
 
@@ -51,7 +52,9 @@ sourceHints:
 manifest: `src\mocks\vendors\vendor-items.yaml`
 > Returns catalog items for a specific vendor displayed on the Items admin page
 
-- **typical** ✓ **(active)** — Shows catalog items for the requested vendor — the normal production-like view with titles and version numbers rendered as raw JSON
+**Currently bypassed** — requests pass through to the real API; no scenario is active.
+
+- **typical** — Shows catalog items for the requested vendor — the normal production-like view with titles and version numbers rendered as raw JSON
 - **empty** — Tests a vendor with no catalog items — the <pre> renders an empty array with no user-visible empty-state message; verifies whether a placeholder should be added
 - **overloaded** — Tests a vendor with 30 catalog items — verifies the <pre> block does not overflow the viewport and that large payloads are still readable
 - **slow** *(delay: 2000)* — Tests the loading state — the <pre> stays empty during the delay because there is no loading indicator; verifies whether a spinner or skeleton should be added
@@ -67,7 +70,9 @@ sourceHints:
 manifest: `src\mocks\vendors\vendor-items-create.yaml`
 > Adds a new catalog item to a specific vendor and returns the saved entity with a server-assigned id
 
-- **success** ✓ **(active)** — Echoes the posted payload back with a fresh UUID — tests that the new item appears in the entity list and any UI that reads from the store updates correctly
+**Currently bypassed** — requests pass through to the real API; no scenario is active.
+
+- **success** — Echoes the posted payload back with a fresh UUID — tests that the new item appears in the entity list and any UI that reads from the store updates correctly
 - **slow** *(delay: 1000)* — Tests the period while the POST is in flight — verifies whether the submit trigger disables or shows a pending state during submission
 - **server-error** *(500)* — Tests a 500 response — the store's addVendor() throws an unhandled rejection; verifies whether an error message surfaces or the request is silently dropped
 
@@ -75,59 +80,31 @@ sourceHints:
 - `src/app/areas/catalog/data-catalog/vendor-catalog-item-store.ts`
 - `src/app/areas/catalog/data-catalog/catalog-api.ts`
 
-### GET `/api/resources`
-manifest: `src\mocks\resources\resources.yaml`
-> Returns the list of developer resources displayed on the Overview page
+### GET `https://recipes.com/api/my-recipes`
+manifest: `src\mocks\recipes\recipes.yaml`
+> Returns the recipe list rendered on the Home Recipes page via httpResource
 
-- **typical** — Shows several developer resources with titles, descriptions, URLs, and tags — the normal production-like view
-- **empty** — Tests the zero-items state — currently renders a bare <ul> with no empty-state message; useful for verifying whether one should be added
-- **overloaded** — Tests rendering with 60 resources to expose layout overflow, scroll behaviour, or the absence of pagination
-- **slow** ✓ **(active)** *(delay: 1000)* — Tests the loading/skeleton state while the request is in flight; verifies no flash of empty content
-- **unauthorized** *(401)* — Tests 401 response — verifies session-expiry handling (redirect to login or inline error) from the store or a route guard
-- **server-error** *(500)* — Tests 500 response — verifies error boundary, fallback UI, or user-visible error message when the API is down
-
-sourceHints:
-- `src/app/areas/resources/data/resources.ts`
-- `src/app/areas/resources/ui/list.ts`
-- `src/app/areas/resources/feature-home/pages/overview.ts`
-
-### POST `/api/resources`
-manifest: `src\mocks\resources\resources-create.yaml`
-> Creates a new developer resource from the Add Resource form
-
-- **success** — Echoes the posted payload back with a fresh UUID — tests that the new resource is appended to the store and the form resets
-- **slow** ✓ **(active)** *(delay: 1000)* — Tests that the submit button's pending/disabled state holds while the request is in flight
-- **validation-error** *(400)* — Tests how the form surfaces a 400 from the server — currently rendered via the generic alert, no per-field messages
-- **conflict** *(409)* — Tests how the form surfaces a 409 duplicate-URL conflict from the server (race with client-side dedupe)
-- **unauthorized** *(401)* — Tests 401 mid-submit — verifies whether the form retains input and whether session-expiry handling kicks in
-- **server-error** *(500)* — Tests 500 response — verifies the form retains input and shows a recoverable error
+- **large** ✓ **(active)** *(200)* — A response with 300 recipes
+- **typical** — Shows the normal recipes list with one row per recipe so the page renders stable content after the request resolves
+- **empty** — Tests the no-recipes state to verify whether the page should show an explicit empty-state message instead of a blank list
+- **null-body** *(200)* — Tests an unexpected null payload to verify whether the page fails safely or needs a guard before iterating
+- **malformed-data** *(200)* — Tests partially invalid recipe records to verify whether rows render safely when fields are missing or null
+- **duplicate-ids** — Tests rendering stability when multiple recipes share an id to expose track-by collisions in the list
+- **unauthorized** *(401)* — Tests 401 responses to verify whether the page surfaces auth failure feedback or silently shows no results
+- **server-error** *(500)* — Tests 500 responses to verify whether an error state appears or the page remains blank with no recovery path
+- **slow** *(delay: real)* — Tests delayed responses to verify whether a loading indicator is needed before recipes appear
+- **timeout** *(delay: infinite)* — Tests a request that never resolves to verify timeout handling and whether the UI gets stuck with no feedback
 
 sourceHints:
-- `src/app/areas/resources/data/resources.ts`
-- `src/app/areas/resources/feature-home/pages/add.ts`
-
-### GET `https://news.hypertheory.com/angular`
-manifest: `src\mocks\news\news.yaml`
-> Returns recent Angular news items displayed on the News page
-
-- **typical** — Shows several recent Angular news items — the normal production-like view with titles, bodies, and formatted dates
-- **empty** — Tests the zero-items state — the list renders with no items and no empty-state message; verifies whether a "no news" placeholder should be added
-- **slow** *(delay: 3000)* — Tests the loading state — the content area is blank while the request is in flight (no skeleton or spinner); verifies that only the page header is visible during load
-- **never-resolves** *(delay: infinite)* — Tests the permanent-loading state — content stays blank indefinitely; verifies whether a timeout message or fallback UI should be added
-- **server-error** *(500)* — Tests 500 response — content area silently stays blank with no error message surfaced to the user; verifies whether an error boundary or fallback UI should be added
-- **stale-dates** — Tests items with invalid, empty, and extreme published dates — verifies that DatePipe edge cases do not break rendering and that blank or unexpected date output is acceptable
-- **many-items** ✓ **(active)** — Tests rendering with 50 news items — verifies that the list handles a large number of items without layout issues, performance degradation, or truncation
-
-sourceHints:
-- `src/app/areas/home/feature-home/pages/news.ts`
-- `src/app/areas/home/feature-home/ui/news-list.ts`
-- `src/app/areas/home/feature-home/data/types.ts`
+- `src/app/areas/home/feature-home/pages/recipes.ts`
 
 ### GET `/api/catalog`
 manifest: `src\mocks\catalog\catalog.yaml`
 > Returns the list of approved software items displayed on the Catalog overview page
 
-- **typical** ✓ **(active)** — Shows several approved software items — the normal production-like view with titles and vendors
+**Currently bypassed** — requests pass through to the real API; no scenario is active.
+
+- **typical** — Shows several approved software items — the normal production-like view with titles and vendors
 - **empty** — Tests the @empty fallback row — verifies "No currently supported software" renders instead of a blank table body
 - **overloaded** — Tests rendering with many catalog items — verifies the table handles long lists without overflow or layout issues
 - **slow** *(delay: 1000)* — Tests the loading-spinner state while the request is in flight — verifies all spinners are visible and no flash of empty content
@@ -137,20 +114,6 @@ manifest: `src\mocks\catalog\catalog.yaml`
 sourceHints:
 - `src/app/areas/catalog/data-catalog/types.ts`
 - `src/app/areas/catalog/feature-catalog/pages/overview.ts`
-
-### GET `/api/books`
-manifest: `src\mocks\books\books.yaml`
-> Returns the list of classic books used by the Books lab
-
-- **typical** ✓ **(active)** — Shows ~100 classic books — the production-like view that exercises sorting, stats, and pagination
-- **empty** — Tests the zero-items state — verifies the list page renders an empty-state message instead of a bare table
-- **slow** *(delay: 1000)* — Tests the loading/skeleton state while the request is in flight
-- **server-error** *(500)* — Tests 500 response — verifies error boundary or fallback UI
-
-sourceHints:
-- `src/app/areas/books/data/books.ts`
-- `src/app/areas/books/feature-home/pages/list.ts`
-- `src/app/areas/books/feature-home/pages/stats.ts`
 
 ---
 

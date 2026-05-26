@@ -37,7 +37,7 @@ interface NavEntry {
           <div class="max-w-7xl mx-auto w-full p-6">
             <router-outlet />
 
-            <stellar-overlay />
+          
           </div>
         </main>
       </div>

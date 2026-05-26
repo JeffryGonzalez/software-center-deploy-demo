@@ -1,12 +1,14 @@
 import { HttpHandler } from 'msw';
 
 import catalogHandler from './catalog/catalog';
+import recipesHandler from './recipes/recipes';
 import vendorsHandler from './vendors/vendors';
 import vendorItemsHandler from './vendors/vendor-items';
 import bypassed from './bypassed-endpoints';
 
 const all: HttpHandler[] = [
   ...catalogHandler,
+  ...recipesHandler,
   ...vendorsHandler,
   ...vendorItemsHandler,
 ];
